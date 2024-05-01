@@ -1,23 +1,11 @@
 import { useEffect, useState } from 'react'
-import NewPost from '../NewPost/NewPost'
 import Post from '../Post/Post'
 import styles from './PostsList.module.css'
-import Modal from '../Modal/Modal'
+import { useLoaderData } from 'react-router-dom'
 
-function PostsList({ isPosting, onStopPosting }) {
-    const [posts, setPosts] = useState([])
-    const [isFetching, setIsFetching] = useState(false)
+function PostsList() {
+    const posts = useLoaderData()
 
-    useEffect(() => {
-        async function fetchPosts() {
-            setIsFetching(true)
-            const response = await fetch('http://localhost:8080/posts')
-            const resData = await response.json()
-            setPosts(resData.posts)
-            setIsFetching(false)
-        }
-        fetchPosts()
-    }, [])
     function addPostHandler(postData) {
         fetch('http://localhost:8080/posts', {
             method: 'POST',
@@ -31,15 +19,7 @@ function PostsList({ isPosting, onStopPosting }) {
 
     return (
         <>
-            {isPosting && (
-                <Modal onClose={onStopPosting}>
-                    <NewPost
-                        onCancel={onStopPosting}
-                        onAddPost={addPostHandler}
-                    />
-                </Modal>
-            )}
-            {!isFetching && posts.length > 0 && (
+            {posts.length > 0 && (
                 <ul className={styles.posts}>
                     {posts.map((post) => (
                         <Post
@@ -50,15 +30,10 @@ function PostsList({ isPosting, onStopPosting }) {
                     ))}
                 </ul>
             )}
-            {!isFetching && posts.length === 0 && (
+            {posts.length === 0 && (
                 <div style={{ textAlign: 'center', color: 'white' }}>
                     <h2>There are no posts yet.</h2>
                     <p>Start adding some!</p>
-                </div>
-            )}
-            {isFetching && (
-                <div style={{ textAlign: 'center', color: 'white' }}>
-                    <p>Loading posts...</p>
                 </div>
             )}
         </>
